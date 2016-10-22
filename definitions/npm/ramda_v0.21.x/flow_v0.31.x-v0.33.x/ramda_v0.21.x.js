@@ -7,6 +7,8 @@ type Transformer<A,B> = {
   '@@transducer/result': (result: *) => B
 }
 
+type Placeholder = {'@@functional/placeholder': true};
+
 
 declare module ramda {
   declare type UnaryFn<A,R> = (a: A) => R;
@@ -23,10 +25,15 @@ declare module ramda {
   }
 
   declare type CurriedFunction2<T1, T2, R> =
+    // & ((t1: Placeholder, t2: T2) => (t1: T1) => R)
     & ((t1: T1, t2: T2) => R)
     & ((t1: T1, ...rest: Array<void>) => (t2: T2) => R)
 
   declare type CurriedFunction3<T1, T2, T3, R> =
+    & ((t1: Placeholder, t2: T2, t3: T3) => (t1: T1) => R)
+    & ((t1: T1, t2: Placeholder, t3: T3) => (t2: T2) => R)
+    & ((t1: T1, t2: T2, t3: Placeholder) => (t3: T3) => R)
+    // TODO: add support for multiple placeholders
     & ((t1: T1, t2: T2, t3: T3) => R)
     & ((t1: T1, t2: T2, ...rest: Array<void>) => (t3: T3) => R)
     & ((t1: T1, ...rest: Array<void>) => CurriedFunction2<T2, T3, R>)
@@ -608,7 +615,7 @@ declare module ramda {
   // TODO view
 
   // *Function
-  declare var __: *;
+  declare var __: Placeholder;
 
   declare var T: (_: any) => boolean;
   declare var F: (_: any) => boolean;
